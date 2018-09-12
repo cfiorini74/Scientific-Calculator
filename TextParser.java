@@ -2,8 +2,9 @@ package RealCalculator;
 
 import java.util.ArrayList;
 import RealCalculator.Function;
-//Class for interpreting Strings into mathematical statements and simplifying them
-//. Supports in paranthesis order of operations, i.e. 1+(3*2) will produce an 
+//Class for interpreting Strings into mathematical expressions
+//and simplifying them.
+//. Supports in parenthesis order of operations, i.e. 1+(3*2) will produce an 
 //output of 7, but does not yet support operator based order of operations, 
 //i.e. 1+3*2 will produce an output of 8. 
 
@@ -62,27 +63,13 @@ public class TextParser {
               func = 3;
             }
           }
-          int findPara = 0;
           r++;
           setFirst = r;
-          // Finds and matches pairs of parenthesis
-          while (toParse.charAt(r) != ')' || findPara > 0) {
-            if (r > last) {
-              throw new Exception("Not enough paranthesis");
-            }
-            if (toParse.charAt(r) == '(') {
-              findPara++;
-              r++;
-            } else if (toParse.charAt(r) == ')' && findPara > 0) {
-              findPara--;
-              r++;
-            } else if (toParse.charAt(r) == ')' && findPara == 0) {
-              break;
-            } else {
-              r++;
-            }
-          }
+          r=findParenthesis(r,last);
           setLast = r;
+          //Calls determineFuncRecursively() method,
+          //which then calls inspectParanthesis() on the 
+          //space between paranthesis specified in the parameters
           solution = determineFuncRecursively(func, solution, setFirst,
               setLast);
           if (r + 1 != toParse.length()) {
@@ -100,6 +87,28 @@ public class TextParser {
 
     }
     return solution;
+  }
+  //Method to find and match pairs of parenthesis
+  public int findParenthesis(int r, int last) throws Exception {
+    int findPara = 0;
+
+    while (toParse.charAt(r) != ')' || findPara > 0) {
+      if (r > last) {
+        throw new Exception("Not enough paranthesis");
+      }
+      if (toParse.charAt(r) == '(') {
+        findPara++;
+        r++;
+      } else if (toParse.charAt(r) == ')' && findPara > 0) {
+        findPara--;
+        r++;
+      } else if (toParse.charAt(r) == ')' && findPara == 0) {
+        break;
+      } else {
+        r++;
+      }
+    }
+    return r;
   }
   //Method to find a string of numbers
   public String determineNum(int r) throws Exception {
@@ -159,7 +168,7 @@ public class TextParser {
     }
     return func;
   }
-  //Method resolves function 
+  //Method resolves function based on func argument
   public double resolveFunc(int func, double solution, double include) {
     if (func == 1) {
       solution += include;
